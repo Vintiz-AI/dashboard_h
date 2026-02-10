@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Inteligente Hospitalario | Dashboard Completo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Todos los estilos CSS del documento original aquí */
+        :root {
+            --primary-blue: #0066CC;
+            --primary-blue-dark: #004C99;
+            --primary-blue-light: #3385D6;
+            --success-green: #00A86B;
+            --warning-yellow: #FFB020;
+            --danger-red: #E63946;
+            --critical-red: #DC143C;
+            --bg-primary: #F8FAFB;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #E8EEF2;
+            --bg-dark: #1A2332;
+            --text-primary: #1A2332;
+            --text-secondary: #5A6C7D;
+            --text-tertiary: #8B9BAA;
+            --text-white: #FFFFFF;
+            --border-color: #DDE4EB;
+            --border-hover: #B8C5D1;
+            --shadow-sm: 0 1px 3px rgba(26, 35, 50, 0.08);
+            --shadow-md: 0 4px 12px rgba(26, 35, 50, 0.1);
+            --shadow-lg: 0 10px 30px rgba(26, 35, 50, 0.15);
+            --shadow-xl: 0 20px 50px rgba(26, 35, 50, 0.2);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 400ms ease;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .dashboard-container { display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, #0F1721 100%);
+            color: var(--text-white);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-xl);
+            z-index: 100;
+        }
+        
+        .sidebar-header { padding: 0 24px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        .hospital-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        
+        .logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+        
+        .hospital-name { font-size: 18px; font-weight: 700; }
+        .hospital-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.6); }
+        
+        .user-info {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            margin: 0 16px 16px;
+        }
+        
+        .user-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--success-green) 0%, #00D98B 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 16px;
+        }
+        
+        .user-name { font-size: 14px; font-weight: 600; }
+        .user-role { font-size: 12px; color: rgba(255, 255, 255, 0.6); }
+        
+        .nav-menu { flex: 1; overflow-y: auto; padding: 8px 16px; }
+        .nav-section { margin-bottom: 24px; }
+        .nav-section-title {
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.8px; color: rgba(255, 255, 255, 0.4);
+            padding: 8px 12px; margin-bottom: 4px;
+        }
+        
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.8); cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .nav-item:hover { background: rgba(255, 255, 255, 0.08); color: var(--text-white); }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 102, 204, 0.15) 0%, rgba(51, 133, 214, 0.05) 100%);
+            color: var(--text-white); font-weight: 500;
+        }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .top-header {
+            background: var(--bg-secondary); padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .page-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+        
+        .content-area { flex: 1; overflow-y: auto; padding: 24px 32px; }
+        
+        .content-grid { display: none; }
+        .content-grid.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px; margin-bottom: 24px;
+        }
+        
+        .kpi-card {
+            background: var(--bg-secondary); border-radius: var(--radius-lg);
+            padding: 24px; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-normal); cursor: pointer;
+        }
+        
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        
+        .kpi-value {
+            font-size: 36px; font-weight: 700; color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .content-section {
+            background: var(--bg-secondary); border-radius: var(--radius-lg);
+            padding: 24px; margin-bottom: 24px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
+        }
+        
+        .section-title { font-size: 18px; font-weight: 700; }
+        
+        .data-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+        }
+        
+        .data-table th {
+            padding: 12px 16px; text-align: left; font-size: 12px;
+            font-weight: 600; color: var(--text-secondary);
+            text-transform: uppercase; background: var(--bg-tertiary);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .data-table td {
+            padding: 16px; border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        
+        .data-table tr:hover { background: var(--bg-primary); }
+        
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
+        }
+        
+        .status-badge.success { background: rgba(0, 168, 107, 0.1); color: var(--success-green); }
+        .status-badge.warning { background: rgba(255, 176, 32, 0.1); color: var(--warning-yellow); }
+        .status-badge.danger { background: rgba(230, 57, 70, 0.1); color: var(--danger-red); }
+        
+        .alert {
+            padding: 16px 20px; border-radius: var(--radius-md);
+            display: flex; align-items: flex-start; gap: 12px;
+            margin-bottom: 12px; border-left: 4px solid;
+        }
+        
+        .alert.critical { background: rgba(220, 20, 60, 0.08); border-color: var(--critical-red); color: var(--critical-red); }
+        .alert.warning { background: rgba(255, 176, 32, 0.08); border-color: var(--warning-yellow); }
+        
+        .chat-widget {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 420px; height: 620px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            box-shadow: 0 12px 48px rgba(0, 40, 100, 0.18), 0 0 0 1px rgba(0, 60, 140, 0.08);
+            display: flex; flex-direction: column;
+            z-index: 1000;
+            transform: translateY(calc(100% + 24px));
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        
+        .chat-widget.open { transform: translateY(0); }
+        
+        .chat-toggle-btn {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 62px; height: 62px;
+            background: linear-gradient(135deg, #0077E6 0%, #0055AA 50%, #003D80 100%);
+            color: white; border: none; border-radius: 50%;
+            cursor: pointer; font-size: 26px;
+            box-shadow: 0 6px 24px rgba(0, 80, 180, 0.4), 0 0 0 4px rgba(0, 100, 210, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            animation: togglePulse 3s ease-in-out infinite;
+        }
+        @keyframes togglePulse {
+            0%, 100% { box-shadow: 0 6px 24px rgba(0, 80, 180, 0.4), 0 0 0 4px rgba(0, 100, 210, 0.12); }
+            50% { box-shadow: 0 6px 28px rgba(0, 80, 180, 0.5), 0 0 0 8px rgba(0, 100, 210, 0.08); }
+        }
+        
+        .chat-toggle-btn:hover { transform: scale(1.1); box-shadow: 0 8px 32px rgba(0, 80, 180, 0.5), 0 0 0 4px rgba(0, 100, 210, 0.15); }
+        .chat-toggle-btn.hidden { display: none; }
+
+        /* === Chat Header === */
+        .chat-header-bar {
+            background: linear-gradient(135deg, #0066CC 0%, #004AAD 40%, #003380 100%);
+            color: white; padding: 18px 20px; flex-shrink: 0;
+            position: relative; overflow: hidden;
+        }
+        .chat-header-bar::before {
+            content: ''; position: absolute; top: -50%; right: -20%;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+        .chat-header-bar::after {
+            content: ''; position: absolute; bottom: -60%; left: -10%;
+            width: 160px; height: 160px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+        .chat-header-inner {
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative; z-index: 1;
+        }
+        .chat-header-left { display: flex; align-items: center; gap: 12px; }
+        .chat-header-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        .chat-header-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+        .chat-header-status {
+            font-size: 11.5px; opacity: 0.85; display: flex; align-items: center; gap: 5px; margin-top: 1px;
+        }
+        .chat-status-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #4ADE80;
+            box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+            animation: statusBlink 2s ease-in-out infinite;
+        }
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+        }
+        .chat-close-btn {
+            background: rgba(255,255,255,0.12); border: none;
+            width: 30px; height: 30px; border-radius: 8px;
+            color: white; cursor: pointer; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s ease;
+        }
+        .chat-close-btn:hover { background: rgba(255,255,255,0.25); }
+
+        /* === Messages area === */
+        .chat-messages-area {
+            flex: 1; padding: 16px; overflow-y: auto;
+            background: linear-gradient(180deg, #F0F4F8 0%, #F8FAFB 100%);
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .chat-messages-area::-webkit-scrollbar { width: 4px; }
+        .chat-messages-area::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages-area::-webkit-scrollbar-thumb { background: #C8D3DE; border-radius: 4px; }
+
+        .chat-bubble {
+            max-width: 85%; padding: 11px 15px;
+            font-size: 13.5px; line-height: 1.55;
+            word-wrap: break-word;
+            animation: chatFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes chatFadeIn {
+            from { opacity: 0; transform: translateY(8px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .chat-bubble.bot {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-left: 3px solid #0066CC;
+            border-radius: 4px 14px 14px 14px;
+            color: var(--text-primary);
+            box-shadow: 0 1px 4px rgba(0, 40, 100, 0.06);
+        }
+        .chat-bubble.bot strong { color: #0059B3; }
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0071E3 0%, #0055B8 100%);
+            color: white;
+            border-radius: 14px 4px 14px 14px;
+            box-shadow: 0 2px 8px rgba(0, 80, 180, 0.25);
+        }
+
+        .chat-typing-indicator {
+            align-self: flex-start;
+            padding: 12px 18px;
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-left: 3px solid #0066CC;
+            border-radius: 4px 14px 14px 14px;
+            display: none; gap: 5px; align-items: center;
+            box-shadow: 0 1px 4px rgba(0, 40, 100, 0.06);
+        }
+        .chat-typing-indicator.visible { display: flex; }
+        .chat-typing-indicator span {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #0066CC;
+            animation: typingDot 1.4s infinite;
+        }
+        .chat-typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingDot {
+            0%, 60%, 100% { opacity: 0.2; transform: scale(0.7); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+
+        /* === Input area === */
+        .chat-input-row {
+            padding: 14px 16px 16px; background: white;
+            border-top: 1px solid #E8EEF3;
+            display: flex; gap: 10px; align-items: center;
+        }
+        .chat-input-row input {
+            flex: 1; padding: 11px 16px;
+            border: 2px solid #E2E8F0;
+            border-radius: 22px; font-family: inherit;
+            font-size: 13.5px; outline: none;
+            background: #F7F9FC;
+            transition: all 0.2s ease;
+        }
+        .chat-input-row input:focus { border-color: #0066CC; background: white; box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1); }
+        .chat-input-row input::placeholder { color: #A0AEC0; }
+        .chat-send {
+            width: 40px; height: 40px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #0071E3 0%, #0055B8 100%);
+            color: white; cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 80, 180, 0.25);
+        }
+        .chat-send:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 80, 180, 0.35); }
+        .chat-send:active { transform: translateY(0); }
+        .chat-send:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* === Suggestions === */
+        .chat-suggestions {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            padding: 8px 16px 4px;
+            background: linear-gradient(180deg, #F0F4F8, #F8FAFB);
+        }
+        .chat-suggestion {
+            padding: 7px 14px; background: white;
+            border: 1px solid #DBE4EE; border-radius: 18px;
+            font-size: 11.5px; color: #0066CC; font-weight: 500;
+            cursor: pointer; font-family: inherit;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 40, 100, 0.05);
+        }
+        .chat-suggestion:hover {
+            background: linear-gradient(135deg, #0071E3, #0055B8);
+            color: white; border-color: transparent;
+            box-shadow: 0 2px 8px rgba(0, 80, 180, 0.25);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="hospital-logo">
+                    <div class="logo-icon">⚕️</div>
+                    <div>
+                        <div class="hospital-name">Hospital San Rafael</div>
+                        <div class="hospital-subtitle">Sistema Inteligente</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">DG</div>
+                <div>
+                    <div class="user-name">Director General</div>
+                    <div class="user-role">Acceso completo</div>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Principal</div>
+                    <div class="nav-item active" data-module="ejecutivo">
+                        <span>📊</span> Vista Ejecutiva
+                    </div>
+                    <div class="nav-item" data-module="calidad">
+                        <span>🏆</span> Calidad y Analítica
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Operaciones</div>
+                    <div class="nav-item" data-module="urgencias">
+                        <span>🚨</span> Urgencias
+                    </div>
+                    <div class="nav-item" data-module="hospitalizacion">
+                        <span>🏥</span> Hospitalización
+                    </div>
+                    <div class="nav-item" data-module="consulta">
+                        <span>📅</span> Consulta Externa
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Análisis</div>
+                    <div class="nav-item" data-module="epidemiologia">
+                        <span>🦠</span> Epidemiología
+                    </div>
+                    <div class="nav-item" data-module="financiero">
+                        <span>💰</span> Financiero
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <h1 class="page-title" id="pageTitle">Vista Ejecutiva</h1>
+                <div id="currentTime" style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600;">14:35:42</div>
+            </header>
+            
+            <div class="content-area">
+                <!-- MÓDULO EJECUTIVO -->
+                <div class="content-grid active" id="module-ejecutivo">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">PACIENTES HOY</div>
+                            <div class="kpi-value">847</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">Total atenciones</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">URGENCIAS</div>
+                            <div class="kpi-value">124</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">18 en atención</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">OCUPACIÓN</div>
+                            <div class="kpi-value">78%</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">87/112 camas</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">SATISFACCIÓN</div>
+                            <div class="kpi-value">4.6/5</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">234 encuestas</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert critical">
+                        <div style="font-size: 20px;">🔴</div>
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 4px;">ALERTA CRÍTICA</div>
+                            <div>UCI: Ocupación 92% - Solo 3 camas libres</div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <div class="section-title" style="margin-bottom: 20px;">📈 Producción Mensual - Enero 2026</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Atención</th>
+                                    <th>Cantidad</th>
+                                    <th>Porcentaje</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Consulta Externa</td>
+                                    <td>17,396</td>
+                                    <td>74.1%</td>
+                                    <td><span class="status-badge success">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Urgencias</td>
+                                    <td>3,720</td>
+                                    <td>15.9%</td>
+                                    <td><span class="status-badge warning">⚠️</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Hospitalización</td>
+                                    <td>2,340</td>
+                                    <td>10.0%</td>
+                                    <td><span class="status-badge success">✓</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- OTROS MÓDULOS (contenido similar estructura) -->
+                <div class="content-grid" id="module-calidad">
+                    <div class="content-section">
+                        <div class="section-title" style="margin-bottom: 20px;">🏆 Indicadores de Calidad</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Indicador</th>
+                                    <th>Actual</th>
+                                    <th>Meta</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Infección intrahospitalaria</td>
+                                    <td>1.2%</td>
+                                    <td>&lt;2%</td>
+                                    <td><span class="status-badge success">✓ Cumple</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Reingresos 30 días</td>
+                                    <td>4.8%</td>
+                                    <td>&lt;5%</td>
+                                    <td><span class="status-badge success">✓ Cumple</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="content-grid" id="module-urgencias">
+                    <div class="alert warning">
+                        <div style="font-size: 20px;">🚨</div>
+                        <div>
+                            <div style="font-weight: 600;">MONITOREO EN TIEMPO REAL</div>
+                            <div>18 pacientes en atención | 7 en espera</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-grid" id="module-hospitalizacion">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">TOTAL CAMAS</div>
+                            <div class="kpi-value">112</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">OCUPADAS</div>
+                            <div class="kpi-value">87</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-grid" id="module-consulta">
+                    <div class="content-section">
+                        <div class="section-title">📅 Consulta Externa</div>
+                        <p>Citas programadas: 247 | Atendidas: 156 | Ausentismo: 8.5%</p>
+                    </div>
+                </div>
+                
+                <div class="content-grid" id="module-epidemiologia">
+                    <div class="alert critical">
+                        <div style="font-size: 20px;">🔴</div>
+                        <div>
+                            <div style="font-weight: 600;">ALERTA EPIDEMIOLÓGICA</div>
+                            <div>IRA: 47 casos en 72h (↑35% vs promedio)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-grid" id="module-financiero">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">FACTURADO</div>
+                            <div class="kpi-value">$924M</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">RECAUDADO</div>
+                            <div class="kpi-value">$819M</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <button class="chat-toggle-btn" onclick="toggleChat()">💬</button>
+    
+    <div class="chat-widget" id="chatWidget">
+        <!-- Header del chat -->
+        <div class="chat-header-bar">
+            <div class="chat-header-inner">
+                <div class="chat-header-left">
+                    <div class="chat-header-icon">🤖</div>
+                    <div>
+                        <div class="chat-header-title">Asistente IA Universal</div>
+                        <div class="chat-header-status"><span class="chat-status-dot"></span> En línea — Hospital San Rafael</div>
+                    </div>
+                </div>
+                <button class="chat-close-btn" onclick="toggleChat()">✕</button>
+            </div>
+        </div>
+        <!-- Área de mensajes -->
+        <div class="chat-messages-area" id="chatMessages">
+            <div style="text-align: center; padding: 20px 16px 12px;">
+                <div style="width: 56px; height: 56px; margin: 0 auto 10px; border-radius: 16px; background: linear-gradient(135deg, #EBF3FF, #D6E8FF); display: flex; align-items: center; justify-content: center; font-size: 28px;">🤖</div>
+                <h3 style="font-size: 15px; font-weight: 700; color: #1A2332;">¡Hola! Soy tu asistente inteligente</h3>
+                <p style="color: #6B7D8E; font-size: 12.5px; margin-top: 4px;">Pregúntame sobre el funcionamiento del hospital</p>
+            </div>
+            <div class="chat-bubble bot">¡Bienvenido, Director! Tengo acceso a todos los datos del Hospital San Rafael en tiempo real. ¿En qué puedo ayudarle?</div>
+            <div class="chat-typing-indicator" id="chatTyping"><span></span><span></span><span></span></div>
+        </div>
+        <!-- Sugerencias rápidas -->
+        <div class="chat-suggestions" id="chatSuggestions">
+            <button class="chat-suggestion" onclick="sendSuggestion(this)">¿Cómo va urgencias?</button>
+            <button class="chat-suggestion" onclick="sendSuggestion(this)">Resumen ejecutivo</button>
+            <button class="chat-suggestion" onclick="sendSuggestion(this)">Estado de camas</button>
+            <button class="chat-suggestion" onclick="sendSuggestion(this)">Alertas activas</button>
+        </div>
+        <!-- Input -->
+        <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="chat-send" id="chatSendBtn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+    
+    <script>
+        // === CÓDIGO ORIGINAL - NO MODIFICADO ===
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('es-CO', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
+        }
+        setInterval(updateTime, 1000);
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const module = item.getAttribute('data-module');
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                document.querySelectorAll('.content-grid').forEach(grid => grid.classList.remove('active'));
+                document.getElementById('module-' + module).classList.add('active');
+                
+                const titles = {
+                    'ejecutivo': 'Vista Ejecutiva',
+                    'calidad': 'Calidad y Analítica',
+                    'urgencias': 'Urgencias',
+                    'hospitalizacion': 'Hospitalización',
+                    'consulta': 'Consulta Externa',
+                    'epidemiologia': 'Epidemiología',
+                    'financiero': 'Financiero'
+                };
+                document.getElementById('pageTitle').textContent = titles[module];
+            });
+        });
+        
+        function toggleChat() {
+            document.getElementById('chatWidget').classList.toggle('open');
+            document.querySelector('.chat-toggle-btn').classList.toggle('hidden');
+        }
+
+        // === MOTOR DE INTELIGENCIA ARTIFICIAL LOCAL DEL HOSPITAL ===
+
+        // Base de datos completa del hospital
+        const hospitalData = {
+            general: {
+                nombre: 'Hospital San Rafael',
+                nivel: 'Nivel II-III',
+                ubicacion: 'Colombia',
+                sistema: 'Sistema Inteligente Hospitalario',
+                usuario: 'Director General',
+                mesActual: 'Enero 2026'
+            },
+            ejecutivo: {
+                pacientesHoy: 847,
+                urgenciasHoy: 124,
+                urgenciasEnAtencion: 18,
+                ocupacion: 78,
+                camasTotal: 112,
+                camasOcupadas: 87,
+                camasDisponibles: 25,
+                satisfaccion: 4.6,
+                satisfaccionMax: 5,
+                encuestas: 234
+            },
+            uci: {
+                ocupacion: 92,
+                camasLibres: 3,
+                camasTotal: 34,
+                camasOcupadas: 31,
+                alertaCritica: true,
+                promedioEstancia: 6.2,
+                pacientesSemana: [29, 31, 30, 32, 31, 33, 31],
+                diasSemana: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+                mortalidad: 8.4,
+                ingresosSemana: 23,
+                altasSemana: 19,
+                diagnosticosTop: ['Insuficiencia respiratoria aguda','Sepsis','Postoperatorio cardiovascular','Trauma craneoencefálico','Falla multiorgánica'],
+                ventilacionMecanica: 18
+            },
+            produccion: {
+                consultaExterna: { cantidad: 17396, porcentaje: 74.1, estado: 'normal' },
+                urgencias: { cantidad: 3720, porcentaje: 15.9, estado: 'advertencia' },
+                hospitalizacion: { cantidad: 2340, porcentaje: 10.0, estado: 'normal' },
+                total: 23456
+            },
+            calidad: {
+                infeccionIntrahospitalaria: { actual: 1.2, meta: 2, cumple: true },
+                reingresos30dias: { actual: 4.8, meta: 5, cumple: true },
+                tiempoEsperaUrgencias: 28,
+                satisfaccionEnfermeria: 4.3,
+                eventosAdversos: 3,
+                caidas: 1,
+                mortalidadGeneral: 2.1
+            },
+            urgencias: {
+                enAtencion: 18,
+                enEspera: 7,
+                totalServicio: 25,
+                tiempoPromedioEspera: 28,
+                triageRojo: 2,
+                triageNaranja: 5,
+                triageAmarillo: 8,
+                triageVerde: 7,
+                triageAzul: 3,
+                ambulanciasHoy: 6,
+                pacientesUltimas24h: 89,
+                motivosTop: ['Dolor abdominal','Trauma','Disnea','Dolor torácico','Cefalea severa','Fiebre alta']
+            },
+            hospitalizacion: {
+                camasTotal: 112,
+                camasOcupadas: 87,
+                camasDisponibles: 25,
+                ocupacionPorcentaje: 77.7,
+                promedioEstancia: 4.3,
+                altasHoy: 12,
+                ingresosHoy: 9,
+                servicios: {
+                    medicinainterna: { camas: 32, ocupadas: 28, disponibles: 4 },
+                    cirugia: { camas: 24, ocupadas: 19, disponibles: 5 },
+                    pediatria: { camas: 18, ocupadas: 12, disponibles: 6 },
+                    ginecobstetricia: { camas: 16, ocupadas: 13, disponibles: 3 },
+                    uci: { camas: 34, ocupadas: 31, disponibles: 3 }
+                }
+            },
+            consulta: {
+                citasProgramadas: 247,
+                citasAtendidas: 156,
+                citasPendientes: 91,
+                ausentismo: 8.5,
+                especialidadesTop: ['Medicina General','Pediatría','Ginecología','Cardiología','Ortopedia','Dermatología'],
+                tiempoPromedioConsulta: 22,
+                pacientesPrimerVez: 64,
+                pacientesControl: 92
+            },
+            epidemiologia: {
+                alertaActiva: true,
+                alertaTipo: 'IRA (Infección Respiratoria Aguda)',
+                casos72h: 47,
+                incremento: 35,
+                casosSemanales: [12, 15, 18, 22, 28, 35, 47],
+                semanasLabels: ['Sem -6','Sem -5','Sem -4','Sem -3','Sem -2','Sem -1','Actual'],
+                otrosEventos: {
+                    eda: 12,
+                    dengue: 3,
+                    covid: 5,
+                    influenza: 8
+                },
+                vacunacion: 78,
+                protocoloActivado: false,
+                comiteProximo: 'Miércoles 10:00 AM'
+            },
+            financiero: {
+                facturado: 924,
+                recaudado: 819,
+                cartera: 105,
+                tasaRecaudo: 88.6,
+                glosas: 47,
+                glosasRecuperadas: 31,
+                costoOperativo: 756,
+                margenOperativo: 8.3,
+                presupuestoEjecutado: 82,
+                deudoresPrincipales: ['EPS Sanitas','Nueva EPS','Compensar','SOAT/ARL'],
+                facturacionPorServicio: {
+                    hospitalizacion: 412,
+                    urgencias: 198,
+                    consultaExterna: 167,
+                    cirugia: 98,
+                    apoyoDx: 49
+                }
+            },
+            personal: {
+                totalEmpleados: 847,
+                medicos: 156,
+                enfermeras: 234,
+                auxiliares: 189,
+                administrativos: 168,
+                serviciosGenerales: 100,
+                ausentismoLaboral: 3.2,
+                turnoActual: 'Diurno',
+                guardiaUrgencias: 'Dr. Martínez, Dra. López',
+                guardiaUCI: 'Dr. Ramírez, Dra. Gómez',
+                capacitacionesMes: 4
+            },
+            historico: {
+                pacientesMesAnterior: 22890,
+                ocupacionPromedio6meses: 75,
+                tendenciaUrgencias: 'al alza (+8% vs mes anterior)',
+                satisfaccionPromedio: 4.4,
+                mejorMes: 'Noviembre 2025 (4.8/5 satisfacción)',
+                incidentesCriticos: 0,
+                cirugiasProgramadas: 186,
+                cirugiasRealizadas: 178,
+                cancelacionQuirurgica: 4.3
+            }
+        };
+
+        // Motor de procesamiento de lenguaje natural
+        function normalizar(texto) {
+            return texto.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[¿?¡!.,;:()]/g, '')
+                .trim();
+        }
+
+        function contienePalabras(texto, palabras) {
+            const t = normalizar(texto);
+            return palabras.some(p => t.includes(normalizar(p)));
+        }
+
+        function contieneAlguna(texto, grupos) {
+            const t = normalizar(texto);
+            return grupos.some(grupo => grupo.every(p => t.includes(normalizar(p))));
+        }
+
+        // Generador de respuestas inteligente
+        function generarRespuesta(pregunta) {
+            const q = normalizar(pregunta);
+            const d = hospitalData;
+
+            // --- SALUDOS ---
+            if (contienePalabras(q, ['hola','buenos dias','buenas tardes','buenas noches','hey','saludos','que tal'])) {
+                const hora = new Date().getHours();
+                const saludo = hora < 12 ? 'Buenos días' : hora < 18 ? 'Buenas tardes' : 'Buenas noches';
+                return `${saludo}, Director. 👋 Estoy listo para asistirle. Actualmente tenemos <strong>${d.ejecutivo.pacientesHoy} pacientes</strong> en atención, ocupación al <strong>${d.ejecutivo.ocupacion}%</strong> y una alerta activa en UCI (92% ocupación). ¿Qué desea consultar?`;
+            }
+
+            // --- UCI / CUIDADOS INTENSIVOS ---
+            if (contienePalabras(q, ['uci','cuidados intensivos','cuidado intensivo','unidad de cuidados','critico','criticos','camas uci'])) {
+                if (contienePalabras(q, ['semana','semanal','ultimos dias','ultima semana','7 dias','estos dias','historico','tendencia'])) {
+                    return `📊 <strong>UCI - Reporte semanal:</strong><br><br>En la última semana, la UCI ha manejado un promedio de <strong>31 pacientes/día</strong>, con el siguiente comportamiento:<br>• Lunes: 29 | Martes: 31 | Miércoles: 30 | Jueves: 32 | Viernes: 31 | Sábado: 33 | Domingo: 31<br>• Total ingresos en la semana: <strong>${d.uci.ingresosSemana}</strong><br>• Total altas en la semana: <strong>${d.uci.altasSemana}</strong><br>• Pacientes en ventilación mecánica: <strong>${d.uci.ventilacionMecanica}</strong><br>• Promedio de estancia: <strong>${d.uci.promedioEstancia} días</strong><br><br>⚠️ La tendencia es al alza. Hoy estamos al <strong>92% de ocupación</strong> con solo <strong>3 camas libres</strong>. Recomiendo evaluar altas tempranas y coordinar con hospitalización para liberar cupos.`;
+                }
+                if (contienePalabras(q, ['paciente','cuantos','cuanto','numero','cantidad'])) {
+                    return `🏥 <strong>UCI - Estado actual:</strong><br><br>• Camas totales: <strong>${d.uci.camasTotal}</strong><br>• Ocupadas: <strong>${d.uci.camasOcupadas}</strong><br>• Disponibles: <strong>${d.uci.camasLibres}</strong><br>• Ocupación: <strong>${d.uci.ocupacion}%</strong> 🔴<br>• Pacientes en ventilación mecánica: <strong>${d.uci.ventilacionMecanica}</strong><br>• Ingresos esta semana: <strong>${d.uci.ingresosSemana}</strong><br><br>Los principales diagnósticos son: ${d.uci.diagnosticosTop.slice(0,3).join(', ')}. Situación crítica, Director.`;
+                }
+                if (contienePalabras(q, ['mortalidad','fallecido','muerte','defuncion'])) {
+                    return `La tasa de mortalidad en UCI se encuentra en <strong>${d.uci.mortalidad}%</strong>, dentro de los parámetros esperados para nuestro nivel de complejidad. El promedio nacional para hospitales de nivel II-III está entre 8% y 12%. Mantenemos vigilancia activa con el comité de mortalidad.`;
+                }
+                if (contienePalabras(q, ['diagnostico','patologia','enfermedad','motivo'])) {
+                    return `📋 <strong>Principales diagnósticos en UCI:</strong><br><br>` + d.uci.diagnosticosTop.map((dx, i) => `${i+1}. ${dx}`).join('<br>') + `<br><br>El <strong>${Math.round(d.uci.ventilacionMecanica/d.uci.camasOcupadas*100)}%</strong> de los pacientes requieren ventilación mecánica.`;
+                }
+                return `🔴 <strong>ALERTA UCI - Ocupación al ${d.uci.ocupacion}%</strong><br><br>• ${d.uci.camasOcupadas} de ${d.uci.camasTotal} camas ocupadas (solo <strong>${d.uci.camasLibres} disponibles</strong>)<br>• ${d.uci.ventilacionMecanica} pacientes en ventilación mecánica<br>• Promedio estancia: ${d.uci.promedioEstancia} días<br>• Mortalidad: ${d.uci.mortalidad}%<br>• Ingresos esta semana: ${d.uci.ingresosSemana} | Altas: ${d.uci.altasSemana}<br><br>Director, esta es nuestra alerta más crítica. ¿Desea que detalle los diagnósticos principales o la tendencia semanal?`;
+            }
+
+            // --- URGENCIAS ---
+            if (contienePalabras(q, ['urgencia','emergencia','urgente','triage','ambulancia'])) {
+                if (contienePalabras(q, ['espera','esperando','demora','tiempo','cola','fila'])) {
+                    return `⏱️ <strong>Tiempos de espera en Urgencias:</strong><br><br>• Tiempo promedio actual: <strong>${d.urgencias.tiempoPromedioEspera} minutos</strong><br>• Pacientes en espera: <strong>${d.urgencias.enEspera}</strong><br>• Pacientes en atención: <strong>${d.urgencias.enAtencion}</strong><br><br>Distribución por triage: 🔴 Rojo: ${d.urgencias.triageRojo} | 🟠 Naranja: ${d.urgencias.triageNaranja} | 🟡 Amarillo: ${d.urgencias.triageAmarillo} | 🟢 Verde: ${d.urgencias.triageVerde} | 🔵 Azul: ${d.urgencias.triageAzul}<br><br>Los pacientes Triage I y II están siendo atendidos de manera inmediata.`;
+                }
+                if (contienePalabras(q, ['motivo','razon','causa','diagnostico','patologia','por que vienen'])) {
+                    return `📋 <strong>Principales motivos de consulta en Urgencias:</strong><br><br>` + d.urgencias.motivosTop.map((m, i) => `${i+1}. ${m}`).join('<br>') + `<br><br>Se han atendido <strong>${d.urgencias.pacientesUltimas24h} pacientes</strong> en las últimas 24 horas, con <strong>${d.urgencias.ambulanciasHoy} ambulancias</strong> recibidas hoy.`;
+                }
+                if (contienePalabras(q, ['cuantos','cuanto','numero','total','resumen','como va','estado'])) {
+                    return `🚨 <strong>Urgencias - Monitoreo en tiempo real:</strong><br><br>• En atención: <strong>${d.urgencias.enAtencion} pacientes</strong><br>• En espera: <strong>${d.urgencias.enEspera} pacientes</strong><br>• Total en el servicio: <strong>${d.urgencias.totalServicio}</strong><br>• Últimas 24h: <strong>${d.urgencias.pacientesUltimas24h} atenciones</strong><br>• Ambulancias hoy: <strong>${d.urgencias.ambulanciasHoy}</strong><br>• Tiempo promedio de espera: <strong>${d.urgencias.tiempoPromedioEspera} min</strong><br><br>⚠️ Las urgencias están al alza (${d.produccion.urgencias.porcentaje}% de la producción total). El guardia actual: ${d.personal.guardiaUrgencias}.`;
+                }
+                return `🚨 <strong>Estado de Urgencias:</strong><br><br>• <strong>${d.urgencias.enAtencion}</strong> pacientes en atención | <strong>${d.urgencias.enEspera}</strong> en espera<br>• Triage: 🔴${d.urgencias.triageRojo} 🟠${d.urgencias.triageNaranja} 🟡${d.urgencias.triageAmarillo} 🟢${d.urgencias.triageVerde} 🔵${d.urgencias.triageAzul}<br>• Últimas 24h: ${d.urgencias.pacientesUltimas24h} pacientes<br>• Tiempo espera promedio: ${d.urgencias.tiempoPromedioEspera} min<br>• Guardia: ${d.personal.guardiaUrgencias}<br><br>Producción mensual: ${d.produccion.urgencias.cantidad.toLocaleString()} atenciones (${d.produccion.urgencias.porcentaje}% del total). ¿Necesita más detalle?`;
+            }
+
+            // --- CAMAS / OCUPACIÓN / HOSPITALIZACIÓN ---
+            if (contienePalabras(q, ['cama','camas','ocupacion','disponible','hospitalizado','hospitalizacion','ingreso','alta','egreso'])) {
+                if (contienePalabras(q, ['servicio','departamento','area','distribucion','desglose'])) {
+                    const s = d.hospitalizacion.servicios;
+                    return `🏥 <strong>Distribución de camas por servicio:</strong><br><br>• Medicina Interna: ${s.medicinainterna.ocupadas}/${s.medicinainterna.camas} (${Math.round(s.medicinainterna.ocupadas/s.medicinainterna.camas*100)}%) - ${s.medicinainterna.disponibles} libres<br>• Cirugía: ${s.cirugia.ocupadas}/${s.cirugia.camas} (${Math.round(s.cirugia.ocupadas/s.cirugia.camas*100)}%) - ${s.cirugia.disponibles} libres<br>• Pediatría: ${s.pediatria.ocupadas}/${s.pediatria.camas} (${Math.round(s.pediatria.ocupadas/s.pediatria.camas*100)}%) - ${s.pediatria.disponibles} libres<br>• Ginecobstetricia: ${s.ginecobstetricia.ocupadas}/${s.ginecobstetricia.camas} (${Math.round(s.ginecobstetricia.ocupadas/s.ginecobstetricia.camas*100)}%) - ${s.ginecobstetricia.disponibles} libres<br>• UCI: ${s.uci.ocupadas}/${s.uci.camas} (<strong>${Math.round(s.uci.ocupadas/s.uci.camas*100)}%</strong>) - ${s.uci.disponibles} libres 🔴<br><br>Total: <strong>${d.hospitalizacion.camasOcupadas}/${d.hospitalizacion.camasTotal}</strong> (${d.hospitalizacion.ocupacionPorcentaje}%)`;
+                }
+                return `🏥 <strong>Estado de Hospitalización:</strong><br><br>• Camas totales: <strong>${d.hospitalizacion.camasTotal}</strong><br>• Ocupadas: <strong>${d.hospitalizacion.camasOcupadas}</strong> (${d.hospitalizacion.ocupacionPorcentaje}%)<br>• Disponibles: <strong>${d.hospitalizacion.camasDisponibles}</strong><br>• Ingresos hoy: <strong>${d.hospitalizacion.ingresosHoy}</strong> | Altas hoy: <strong>${d.hospitalizacion.altasHoy}</strong><br>• Promedio estancia: <strong>${d.hospitalizacion.promedioEstancia} días</strong><br><br>⚠️ UCI es el servicio más crítico con solo ${d.uci.camasLibres} camas libres. ¿Desea ver el desglose por servicio?`;
+            }
+
+            // --- CONSULTA EXTERNA ---
+            if (contienePalabras(q, ['consulta externa','citas','cita','programadas','atendidas','ausentismo','especialidad','agenda'])) {
+                if (contienePalabras(q, ['ausentismo','falta','no asistieron','inasistencia'])) {
+                    return `📅 El ausentismo en Consulta Externa está en <strong>${d.consulta.ausentismo}%</strong>, lo cual es aceptable (el estándar es <10%). De las ${d.consulta.citasProgramadas} citas programadas hoy, aproximadamente <strong>${Math.round(d.consulta.citasProgramadas * d.consulta.ausentismo / 100)} pacientes</strong> no asistieron. Recomiendo reforzar los recordatorios por SMS 24h antes.`;
+                }
+                return `📅 <strong>Consulta Externa - Hoy:</strong><br><br>• Citas programadas: <strong>${d.consulta.citasProgramadas}</strong><br>• Atendidas: <strong>${d.consulta.citasAtendidas}</strong><br>• Pendientes: <strong>${d.consulta.citasPendientes}</strong><br>• Ausentismo: <strong>${d.consulta.ausentismo}%</strong><br>• Primera vez: ${d.consulta.pacientesPrimerVez} | Control: ${d.consulta.pacientesControl}<br>• Tiempo promedio por consulta: ${d.consulta.tiempoPromedioConsulta} min<br><br>Especialidades más demandadas: ${d.consulta.especialidadesTop.slice(0,4).join(', ')}.<br>Producción mensual: <strong>${d.produccion.consultaExterna.cantidad.toLocaleString()}</strong> atenciones (${d.produccion.consultaExterna.porcentaje}% del total).`;
+            }
+
+            // --- EPIDEMIOLOGÍA ---
+            if (contienePalabras(q, ['epidemiologia','ira','respiratoria','brote','contagio','infeccion','dengue','covid','influenza','virus','alerta epidemiologica','casos','epidemiol'])) {
+                if (contienePalabras(q, ['tendencia','semana','evolucion','comportamiento','grafico','curva'])) {
+                    return `📈 <strong>Tendencia epidemiológica IRA (últimas 7 semanas):</strong><br><br>` + d.epidemiologia.casosSemanales.map((c, i) => `${d.epidemiologia.semanasLabels[i]}: ${c} casos ${i === 6 ? '⚠️ (actual)' : ''}`).join('<br>') + `<br><br>La curva muestra un ascenso sostenido del <strong>${d.epidemiologia.incremento}%</strong> respecto al promedio. Se recomienda activar protocolo de contingencia si la tendencia continúa.`;
+                }
+                if (contienePalabras(q, ['otro','otros','dengue','covid','eda','demas'])) {
+                    const o = d.epidemiologia.otrosEventos;
+                    return `🦠 <strong>Otros eventos epidemiológicos activos:</strong><br><br>• EDA (Enfermedad Diarreica Aguda): <strong>${o.eda} casos</strong><br>• Influenza: <strong>${o.influenza} casos</strong><br>• COVID-19: <strong>${o.covid} casos</strong><br>• Dengue: <strong>${o.dengue} casos</strong><br>• Cobertura de vacunación: <strong>${d.epidemiologia.vacunacion}%</strong><br><br>Próximo comité de vigilancia epidemiológica: <strong>${d.epidemiologia.comiteProximo}</strong>.`;
+                }
+                return `🔴 <strong>ALERTA EPIDEMIOLÓGICA ACTIVA</strong><br><br>• Evento: <strong>${d.epidemiologia.alertaTipo}</strong><br>• Casos en 72h: <strong>${d.epidemiologia.casos72h}</strong><br>• Incremento: <strong>↑${d.epidemiologia.incremento}%</strong> vs promedio histórico<br>• Protocolo de contingencia: ${d.epidemiologia.protocoloActivado ? 'Activado ✓' : 'Pendiente de activación'}<br>• Próximo comité: ${d.epidemiologia.comiteProximo}<br><br>Otros eventos: EDA (${d.epidemiologia.otrosEventos.eda}), Influenza (${d.epidemiologia.otrosEventos.influenza}), COVID (${d.epidemiologia.otrosEventos.covid}), Dengue (${d.epidemiologia.otrosEventos.dengue}).<br><br>Director, dado el incremento del 35%, recomendaría considerar la activación del protocolo de contingencia respiratoria.`;
+            }
+
+            // --- FINANCIERO ---
+            if (contienePalabras(q, ['financiero','dinero','plata','facturado','recaudado','cartera','glosa','presupuesto','costo','gasto','ingreso financiero','rentabilidad','margen','facturacion'])) {
+                if (contienePalabras(q, ['glosa','rechazo','devolucion','objecion'])) {
+                    return `💰 <strong>Estado de Glosas:</strong><br><br>• Glosas recibidas: <strong>$${d.financiero.glosas}M</strong><br>• Glosas recuperadas: <strong>$${d.financiero.glosasRecuperadas}M</strong> (${Math.round(d.financiero.glosasRecuperadas/d.financiero.glosas*100)}%)<br>• Pendientes por gestionar: <strong>$${d.financiero.glosas - d.financiero.glosasRecuperadas}M</strong><br><br>La tasa de recuperación es buena, pero recomendaría revisar los procesos de facturación para reducir las glosas desde el origen.`;
+                }
+                if (contienePalabras(q, ['servicio','desglose','detalle','area'])) {
+                    const f = d.financiero.facturacionPorServicio;
+                    return `💰 <strong>Facturación por servicio (Enero 2026):</strong><br><br>• Hospitalización: <strong>$${f.hospitalizacion}M</strong> (${Math.round(f.hospitalizacion/d.financiero.facturado*100)}%)<br>• Urgencias: <strong>$${f.urgencias}M</strong> (${Math.round(f.urgencias/d.financiero.facturado*100)}%)<br>• Consulta Externa: <strong>$${f.consultaExterna}M</strong> (${Math.round(f.consultaExterna/d.financiero.facturado*100)}%)<br>• Cirugía: <strong>$${f.cirugia}M</strong> (${Math.round(f.cirugia/d.financiero.facturado*100)}%)<br>• Apoyo Diagnóstico: <strong>$${f.apoyoDx}M</strong> (${Math.round(f.apoyoDx/d.financiero.facturado*100)}%)<br><br>Total facturado: <strong>$${d.financiero.facturado}M</strong>`;
+                }
+                if (contienePalabras(q, ['cartera','deudor','deben','cobrar','pendiente'])) {
+                    return `💰 <strong>Estado de Cartera:</strong><br><br>• Cartera total pendiente: <strong>$${d.financiero.cartera}M</strong><br>• Tasa de recaudo: <strong>${d.financiero.tasaRecaudo}%</strong><br><br>Principales deudores:<br>` + d.financiero.deudoresPrincipales.map((de, i) => `${i+1}. ${de}`).join('<br>') + `<br><br>Recomiendo intensificar gestión de cobro con las EPS que tienen mayor mora.`;
+                }
+                return `💰 <strong>Resumen Financiero - Enero 2026:</strong><br><br>• Facturado: <strong>$${d.financiero.facturado}M</strong><br>• Recaudado: <strong>$${d.financiero.recaudado}M</strong><br>• Cartera pendiente: <strong>$${d.financiero.cartera}M</strong><br>• Tasa de recaudo: <strong>${d.financiero.tasaRecaudo}%</strong><br>• Costo operativo: <strong>$${d.financiero.costoOperativo}M</strong><br>• Margen operativo: <strong>${d.financiero.margenOperativo}%</strong><br>• Presupuesto ejecutado: <strong>${d.financiero.presupuestoEjecutado}%</strong><br>• Glosas: $${d.financiero.glosas}M (recuperadas: $${d.financiero.glosasRecuperadas}M)`;
+            }
+
+            // --- CALIDAD ---
+            if (contienePalabras(q, ['calidad','indicador','meta','infeccion intrahospitalaria','reingreso','evento adverso','caida'])) {
+                return `🏆 <strong>Indicadores de Calidad:</strong><br><br>• Infección intrahospitalaria: <strong>${d.calidad.infeccionIntrahospitalaria.actual}%</strong> (Meta: <${d.calidad.infeccionIntrahospitalaria.meta}%) ✅<br>• Reingresos 30 días: <strong>${d.calidad.reingresos30dias.actual}%</strong> (Meta: <${d.calidad.reingresos30dias.meta}%) ✅<br>• Tiempo espera urgencias: <strong>${d.calidad.tiempoEsperaUrgencias} min</strong><br>• Satisfacción enfermería: <strong>${d.calidad.satisfaccionEnfermeria}/5</strong><br>• Eventos adversos del mes: <strong>${d.calidad.eventosAdversos}</strong><br>• Caídas reportadas: <strong>${d.calidad.caidas}</strong><br>• Mortalidad general: <strong>${d.calidad.mortalidadGeneral}%</strong><br><br>Todos los indicadores principales están dentro de meta. ¡Buen trabajo del equipo!`;
+            }
+
+            // --- PERSONAL / RECURSO HUMANO ---
+            if (contienePalabras(q, ['personal','empleado','medico','enfermera','doctor','recurso humano','nomina','guardia','turno','staff','trabajador','quien esta'])) {
+                if (contienePalabras(q, ['guardia','turno','quien esta','disponible'])) {
+                    return `👨‍⚕️ <strong>Guardias actuales (Turno ${d.personal.turnoActual}):</strong><br><br>• Urgencias: <strong>${d.personal.guardiaUrgencias}</strong><br>• UCI: <strong>${d.personal.guardiaUCI}</strong><br><br>Turno actual: <strong>${d.personal.turnoActual}</strong><br>Total personal activo: ${d.personal.totalEmpleados}<br>Ausentismo laboral: ${d.personal.ausentismoLaboral}%`;
+                }
+                return `👥 <strong>Recurso Humano:</strong><br><br>• Total empleados: <strong>${d.personal.totalEmpleados}</strong><br>• Médicos: ${d.personal.medicos} | Enfermeras: ${d.personal.enfermeras}<br>• Auxiliares: ${d.personal.auxiliares} | Administrativos: ${d.personal.administrativos}<br>• Servicios generales: ${d.personal.serviciosGenerales}<br>• Ausentismo laboral: <strong>${d.personal.ausentismoLaboral}%</strong><br>• Capacitaciones este mes: ${d.personal.capacitacionesMes}<br>• Turno actual: ${d.personal.turnoActual}`;
+            }
+
+            // --- RESUMEN EJECUTIVO ---
+            if (contienePalabras(q, ['resumen','ejecutivo','general','como estamos','como esta el hospital','panorama','vision general','estado general','todo','completo','dashboard'])) {
+                return `📊 <strong>Resumen Ejecutivo - Hospital San Rafael</strong><br><br>🏥 <strong>Operaciones:</strong> ${d.ejecutivo.pacientesHoy} pacientes hoy | Ocupación ${d.ejecutivo.ocupacion}% (${d.ejecutivo.camasOcupadas}/${d.ejecutivo.camasTotal})<br>🚨 <strong>Urgencias:</strong> ${d.urgencias.totalServicio} pacientes (${d.urgencias.enAtencion} en atención, ${d.urgencias.enEspera} en espera)<br>🔴 <strong>UCI:</strong> ${d.uci.ocupacion}% ocupación - ALERTA (solo ${d.uci.camasLibres} camas)<br>📅 <strong>Consulta:</strong> ${d.consulta.citasAtendidas}/${d.consulta.citasProgramadas} citas | Ausentismo ${d.consulta.ausentismo}%<br>🦠 <strong>Epidemiología:</strong> Alerta IRA - ${d.epidemiologia.casos72h} casos/72h (↑${d.epidemiologia.incremento}%)<br>💰 <strong>Financiero:</strong> Facturado $${d.financiero.facturado}M | Recaudado $${d.financiero.recaudado}M (${d.financiero.tasaRecaudo}%)<br>⭐ <strong>Satisfacción:</strong> ${d.ejecutivo.satisfaccion}/${d.ejecutivo.satisfaccionMax}<br>✅ <strong>Calidad:</strong> Todos los indicadores en meta<br><br><strong>Prioridades inmediatas:</strong> 1) Gestionar ocupación UCI 2) Monitorear brote IRA 3) Mejorar recaudo de cartera.`;
+            }
+
+            // --- ALERTAS ---
+            if (contienePalabras(q, ['alerta','alarma','critico','critica','prioridad','problema','riesgo','atencion inmediata','pendiente'])) {
+                return `🚨 <strong>Alertas activas en este momento:</strong><br><br>🔴 <strong>CRÍTICA - UCI al ${d.uci.ocupacion}%:</strong> Solo ${d.uci.camasLibres} camas disponibles. Requiere gestión inmediata de altas y posible derivación a otras instituciones.<br><br>🔴 <strong>ALERTA EPIDEMIOLÓGICA - IRA:</strong> ${d.epidemiologia.casos72h} casos en 72h, incremento del ${d.epidemiologia.incremento}%. Se recomienda activar protocolo de contingencia.<br><br>🟡 <strong>ADVERTENCIA - Urgencias:</strong> Producción al alza (${d.produccion.urgencias.porcentaje}% del total). ${d.urgencias.enEspera} pacientes en espera.<br><br>🟡 <strong>CARTERA:</strong> $${d.financiero.cartera}M pendientes de recaudo. Tasa actual: ${d.financiero.tasaRecaudo}%.<br><br>¿Desea que profundice en alguna de estas alertas?`;
+            }
+
+            // --- SATISFACCIÓN ---
+            if (contienePalabras(q, ['satisfaccion','encuesta','opinion','paciente opina','calificacion','valoracion','experiencia del paciente'])) {
+                return `⭐ <strong>Satisfacción del Paciente:</strong><br><br>• Calificación general: <strong>${d.ejecutivo.satisfaccion}/${d.ejecutivo.satisfaccionMax}</strong><br>• Encuestas realizadas: <strong>${d.ejecutivo.encuestas}</strong><br>• Satisfacción con enfermería: <strong>${d.calidad.satisfaccionEnfermeria}/5</strong><br>• Promedio últimos 6 meses: <strong>${d.historico.satisfaccionPromedio}/5</strong><br>• Mejor mes: ${d.historico.mejorMes}<br><br>Estamos por encima del promedio histórico (${d.historico.satisfaccionPromedio}). Los pacientes destacan la atención de enfermería y el trato humanizado.`;
+            }
+
+            // --- PRODUCCIÓN ---
+            if (contienePalabras(q, ['produccion','atenciones','cuantos pacientes mes','mensual','estadistica','enero'])) {
+                return `📈 <strong>Producción Mensual - ${d.general.mesActual}:</strong><br><br>• Consulta Externa: <strong>${d.produccion.consultaExterna.cantidad.toLocaleString()}</strong> (${d.produccion.consultaExterna.porcentaje}%) ✅<br>• Urgencias: <strong>${d.produccion.urgencias.cantidad.toLocaleString()}</strong> (${d.produccion.urgencias.porcentaje}%) ⚠️<br>• Hospitalización: <strong>${d.produccion.hospitalizacion.cantidad.toLocaleString()}</strong> (${d.produccion.hospitalizacion.porcentaje}%) ✅<br>• <strong>Total: ${d.produccion.total.toLocaleString()} atenciones</strong><br><br>Mes anterior: ${d.historico.pacientesMesAnterior.toLocaleString()}. Tendencia de urgencias: ${d.historico.tendenciaUrgencias}.`;
+            }
+
+            // --- CIRUGÍAS ---
+            if (contienePalabras(q, ['cirugia','quirofano','operacion','quirurgica','cirujano','programacion quirurgica'])) {
+                return `🔪 <strong>Actividad Quirúrgica:</strong><br><br>• Cirugías programadas: <strong>${d.historico.cirugiasProgramadas}</strong><br>• Cirugías realizadas: <strong>${d.historico.cirugiasRealizadas}</strong><br>• Tasa de cancelación: <strong>${d.historico.cancelacionQuirurgica}%</strong><br>• Camas de cirugía: ${d.hospitalizacion.servicios.cirugia.ocupadas}/${d.hospitalizacion.servicios.cirugia.camas} ocupadas<br>• Facturación por cirugía: <strong>$${d.financiero.facturacionPorServicio.cirugia}M</strong><br><br>La tasa de cancelación está dentro de lo aceptable (<5%).`;
+            }
+
+            // --- PEDIATRÍA ---
+            if (contienePalabras(q, ['pediatria','niños','ninos','infantil','neonato','recien nacido'])) {
+                const ped = d.hospitalizacion.servicios.pediatria;
+                return `👶 <strong>Servicio de Pediatría:</strong><br><br>• Camas: ${ped.ocupadas}/${ped.camas} ocupadas (${Math.round(ped.ocupadas/ped.camas*100)}%)<br>• Disponibles: <strong>${ped.disponibles} camas</strong><br><br>El servicio mantiene buena disponibilidad. Dada la alerta IRA, se recomienda monitoreo especial de pacientes pediátricos con síntomas respiratorios.`;
+            }
+
+            // --- GINECOLOGÍA ---
+            if (contienePalabras(q, ['ginecologia','obstetricia','parto','embarazo','materno','maternidad','cesarea'])) {
+                const gin = d.hospitalizacion.servicios.ginecobstetricia;
+                return `🤰 <strong>Ginecobstetricia:</strong><br><br>• Camas: ${gin.ocupadas}/${gin.camas} ocupadas (${Math.round(gin.ocupadas/gin.camas*100)}%)<br>• Disponibles: <strong>${gin.disponibles} camas</strong><br><br>El servicio opera con normalidad. Disponibilidad adecuada para posibles ingresos de urgencia obstétrica.`;
+            }
+
+            // --- MEDICINA INTERNA ---
+            if (contienePalabras(q, ['medicina interna','internista'])) {
+                const mi = d.hospitalizacion.servicios.medicinainterna;
+                return `🩺 <strong>Medicina Interna:</strong><br><br>• Camas: ${mi.ocupadas}/${mi.camas} ocupadas (${Math.round(mi.ocupadas/mi.camas*100)}%)<br>• Disponibles: <strong>${mi.disponibles} camas</strong><br><br>Es el servicio con mayor ocupación después de UCI. Se recomienda agilizar altas pendientes para mantener disponibilidad.`;
+            }
+
+            // --- PACIENTES HOY ---
+            if (contienePalabras(q, ['pacientes hoy','cuantos pacientes','atencion hoy','hoy cuantos'])) {
+                return `📊 Hoy se han registrado <strong>${d.ejecutivo.pacientesHoy} pacientes</strong> en total.<br><br>Distribución: Urgencias (${d.ejecutivo.urgenciasHoy}), Consulta Externa (${d.consulta.citasAtendidas} atendidas de ${d.consulta.citasProgramadas}), Hospitalización (${d.hospitalizacion.camasOcupadas} hospitalizados activos).<br><br>Comparado con el promedio diario del mes anterior (${Math.round(d.historico.pacientesMesAnterior/30)} pac/día), estamos en un rango normal.`;
+            }
+
+            // --- RECOMENDACIONES ---
+            if (contienePalabras(q, ['recomendacion','sugerencia','que hago','que deberia','accion','plan','mejorar','optimizar','estrategia'])) {
+                return `📋 <strong>Recomendaciones prioritarias:</strong><br><br><strong>1. UCI (Urgente):</strong> Con 92% de ocupación, se recomienda revisar pacientes con posibilidad de paso a piso, contactar red hospitalaria para posibles traslados, y suspender cirugías electivas que requieran UCI postoperatoria.<br><br><strong>2. Brote IRA:</strong> Activar protocolo de contingencia respiratoria, reforzar medidas de aislamiento, aumentar stock de insumos respiratorios y programar comité extraordinario.<br><br><strong>3. Cartera ($${d.financiero.cartera}M):</strong> Gestión intensiva con EPS morosas. Priorizar conciliación con ${d.financiero.deudoresPrincipales[0]} y ${d.financiero.deudoresPrincipales[1]}.<br><br><strong>4. Urgencias:</strong> Dado el incremento, considerar personal adicional en turnos pico y agilizar flujo de pacientes hacia hospitalización.`;
+            }
+
+            // --- GRACIAS / DESPEDIDA ---
+            if (contienePalabras(q, ['gracias','agradezco','perfecto','excelente','genial','ok','vale','listo'])) {
+                return `¡Con gusto, Director! 😊 Estoy aquí para lo que necesite. Recuerde que puede preguntarme sobre cualquier área del hospital: urgencias, UCI, camas, finanzas, epidemiología, calidad, personal, cirugías, y mucho más.`;
+            }
+
+            // --- AYUDA ---
+            if (contienePalabras(q, ['ayuda','que puedes','que sabes','como funciona','opciones','menu','que puedo preguntar'])) {
+                return `🤖 <strong>¡Puedo ayudarle con todo esto!</strong><br><br>📊 <strong>Operativo:</strong> Estado de urgencias, camas, UCI, hospitalización, consulta externa<br>📈 <strong>Producción:</strong> Atenciones diarias, mensuales, por servicio<br>🏆 <strong>Calidad:</strong> Indicadores, infecciones, reingresos, satisfacción<br>🦠 <strong>Epidemiología:</strong> Alertas, brotes, tendencias, vacunación<br>💰 <strong>Financiero:</strong> Facturación, recaudo, cartera, glosas, costos<br>👥 <strong>Personal:</strong> Empleados, guardias, turnos, ausentismo<br>🔪 <strong>Cirugía:</strong> Programación, cancelaciones, quirófanos<br>🚨 <strong>Alertas:</strong> Estado crítico, prioridades, recomendaciones<br><br>Pruebe preguntas como: <em>"¿Cuántos pacientes hay en UCI esta semana?"</em>, <em>"¿Cómo va la cartera?"</em>, <em>"Dame las alertas activas"</em>`;
+            }
+
+            // --- CATCH-ALL INTELIGENTE ---
+            // Si no matchea nada específico, intenta dar una respuesta útil
+            if (contienePalabras(q, ['cuanto','cuantos','cuantas','numero','total'])) {
+                return `📊 Le comparto los números principales del hospital:<br><br>• Pacientes hoy: <strong>${d.ejecutivo.pacientesHoy}</strong><br>• Ocupación: <strong>${d.ejecutivo.ocupacion}%</strong> (${d.ejecutivo.camasOcupadas}/${d.ejecutivo.camasTotal} camas)<br>• Urgencias: <strong>${d.urgencias.totalServicio}</strong> en el servicio<br>• UCI: <strong>${d.uci.camasOcupadas}/${d.uci.camasTotal}</strong> (${d.uci.ocupacion}%)<br>• Consultas hoy: <strong>${d.consulta.citasAtendidas}/${d.consulta.citasProgramadas}</strong><br>• Facturado: <strong>$${d.financiero.facturado}M</strong><br><br>¿Sobre qué área específica le gustaría más detalle?`;
+            }
+
+            if (contienePalabras(q, ['como','estado','va','situacion','anda'])) {
+                return `📊 El hospital opera con normalidad general. Puntos clave:<br><br>• Ocupación: <strong>${d.ejecutivo.ocupacion}%</strong> - Dentro de rango<br>• UCI al <strong>${d.uci.ocupacion}%</strong> 🔴 - Requiere atención<br>• Urgencias: ${d.urgencias.totalServicio} pacientes (${d.urgencias.enEspera} en espera)<br>• Calidad: Todos los indicadores en meta ✅<br>• Satisfacción: ${d.ejecutivo.satisfaccion}/5 ⭐<br><br>Las dos alertas activas son: UCI (ocupación crítica) y brote IRA (${d.epidemiologia.casos72h} casos en 72h). ¿Desea profundizar en alguna?`;
+            }
+
+            // --- RESPUESTA POR DEFECTO ---
+            return `Entiendo su consulta. Con base en los datos del Hospital San Rafael, le puedo informar que hoy manejamos <strong>${d.ejecutivo.pacientesHoy} pacientes</strong>, con ocupación al <strong>${d.ejecutivo.ocupacion}%</strong>. Tenemos alertas activas en UCI (${d.uci.ocupacion}%) y epidemiología (IRA: ${d.epidemiologia.casos72h} casos).<br><br>¿Podría ser más específico? Puedo darle información sobre: <strong>urgencias, UCI, camas, consulta externa, epidemiología, finanzas, calidad, personal, cirugías</strong> o un <strong>resumen ejecutivo</strong> completo.`; 
+        }
+
+        // === Funciones de UI del chat (sin cambios) ===
+
+        function addMessage(text, type) {
+            const messagesArea = document.getElementById('chatMessages');
+            const typing = document.getElementById('chatTyping');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble ' + type;
+            bubble.innerHTML = text;
+            messagesArea.insertBefore(bubble, typing);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function showTyping(show) {
+            const el = document.getElementById('chatTyping');
+            if (show) { el.classList.add('visible'); } else { el.classList.remove('visible'); }
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+
+        function sendSuggestion(btn) {
+            document.getElementById('chatSuggestions').style.display = 'none';
+            document.getElementById('chatInput').value = btn.textContent;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            input.value = '';
+            showTyping(true);
+
+            // Simular tiempo de "pensamiento" para que se sienta real
+            const delay = 400 + Math.random() * 800;
+            setTimeout(() => {
+                showTyping(false);
+                const respuesta = generarRespuesta(text);
+                addMessage(respuesta, 'bot');
+            }, delay);
+
+            input.focus();
+        }
+    </script>
+</body>
+</html>
